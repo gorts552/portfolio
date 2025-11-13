@@ -107,7 +107,7 @@ function App() {
           <div className="md:w-1/2 flex justify-center">
             <div className="w-56 h-64 md:w-72 md:h-80 rounded-[50%] overflow-hidden border-4 border-secondary/20 shadow-lg" style={{ borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%' }}>
               <img 
-                src="/assets/passport.jpg" 
+                src={process.env.PUBLIC_URL + '/assets/passport.jpg'} 
                 alt="Celine Muthoni" 
                 className="w-full h-full object-cover"
                 onError={(e) => {
