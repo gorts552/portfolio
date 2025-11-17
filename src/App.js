@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { FiGithub, FiLinkedin, FiMail, FiPhone } from "react-icons/fi";
+import emailjs from '@emailjs/browser';
 
 // Project data
 const projects = [
@@ -38,6 +39,51 @@ const projects = [
 ];
 
 function App() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('');
+
+    try {
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.message,
+        to_email: 'celinemuthoni16@gmail.com' // Your email address where messages are sent
+      };
+
+      // Replace with your EmailJS service details
+      await emailjs.send(
+        'service_4tu4hbc', // Your EmailJS service ID
+        'template_xzy1r2g', // Your EmailJS template ID
+        templateParams,
+        'f_3l63e4c1q3xxLEa' // Your EmailJS public key
+      );
+
+      setSubmitStatus('success');
+      setFormData({ name: '', email: '', message: '' });
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-background text-text">
       {/* Navigation */}
@@ -297,39 +343,67 @@ function App() {
               {/* Contact Form */}
               <div className="p-8 md:p-12">
                 <h3 className="text-2xl font-bold text-text mb-6">Send Me a Message</h3>
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-text/80 mb-1">Name</label>
                     <input
                       type="text"
                       id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
                       placeholder="Your name"
+                      required
                     />
                   </div>
+
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-text/80 mb-1">Email</label>
+                    <label htmlFor="email" className="block text-sm font-medium text-text/80 mb-1">Your Email Address</label>
                     <input
                       type="email"
                       id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
                       placeholder="your.email@example.com"
+                      required
                     />
                   </div>
+
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-text/80 mb-1">Message</label>
                     <textarea
                       id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
                       rows="4"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all resize-none"
                       placeholder="Your message..."
-                    ></textarea>
+                      required
+                    />
                   </div>
+
+                  {submitStatus === 'success' && (
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
+                      Message sent successfully! I'll get back to you soon.
+                    </div>
+                  )}
+
+                  {submitStatus === 'error' && (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                      Failed to send message. Please make sure EmailJS is configured correctly in EMAILJS_SETUP.md, or contact me directly.
+                    </div>
+                  )}
+
                   <button
                     type="submit"
-                    className="w-full bg-primary text-white py-3 px-6 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                    disabled={isSubmitting}
+                    className="w-full bg-primary text-white py-3 px-6 rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Send Message
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </button>
                 </form>
               </div>
